@@ -9,6 +9,7 @@ alertmanager = sys.argv[2]
 
 print("Starting prom-check with prometheus: {} and alertmanager: {}".format(prometheus, alertmanager))
 
+
 while True:
 	up = False
 	try:
@@ -26,10 +27,10 @@ while True:
 		print("{} is down. Sending alert to {}".format(prometheus, alertmanager))
 		body = [{"labels": {"Alertname": "Prometheus Down", "severity": "critical"}}]
 
-		# a = requests.post('http://{}/api/v1/alerts'.format(alertmanager), json=body)
+		a = requests.post('http://{}/api/v1/alerts'.format(alertmanager), json=body)
 
-		# print(a.status_code)
-		# print(a.json())
+		print(a.status_code)
+		print(a.json())
 
 	print("waiting for 60 seconds")
 	time.sleep(60)
