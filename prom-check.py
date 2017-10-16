@@ -14,12 +14,12 @@ while True:
 	up = False
 	try:
 		print("testing Prometheus..")
-		r = requests.get("http://{}/metrics".format(prometheus))
+		r = requests.get("http://{}/metrics".format(prometheus), timeout=30)
 		if r.status_code == 200:
 			up = True
 		print(r.status_code)
 	except:
-		print("Failed to get prometheus endpoint")
+		print("Failed to get prometheus endpoint in 30 seconds")
 		pass
 
 	if not up:
