@@ -16,7 +16,6 @@ print(
     )
 )
 
-
 while True:
     up = False
 
@@ -78,9 +77,17 @@ while True:
         )
 
         if a.status_code == 200:
-            print("[{}] Alert sent OK.".format(datetime.now(timezone.utc).astimezone()))
+            print("[{}] Alert sent OK.".format(
+                datetime.now(timezone.utc).astimezone()
+            ))
         else:
-            print("[{}] Alert failed to send.".format(datetime.now(timezone.utc).astimezone()))
+            print("[{}] Alert failed to send.".format(
+                datetime.now(timezone.utc).astimezone()
+            ))
 
-    print("[{}] Waiting for {} seconds..".format(datetime.now(timezone.utc).astimezone(), interval))
+    print("[{}] Waiting for {} seconds..".format(
+        datetime.now(timezone.utc).astimezone(),
+        interval
+    ))
+
     time.sleep(interval)
