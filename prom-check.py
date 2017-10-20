@@ -19,20 +19,35 @@ print(
 
 while True:
     up = False
+
+    print("[{}] Testing Prometheus..".format(
+        datetime.now(timezone.utc).astimezone()
+    ))
+
     try:
-        print("testing Prometheus.. ", end='')
-        r = requests.get("http://{}/metrics".format(prometheus), timeout=30)
+        r = requests.get(
+            "http://{}/metrics".format(prometheus),
+            timeout=30
+        )
+
         if r.status_code == 200:
             up = True
-        print(r.status_code)
+
+        print("[{}] Status Code: {}".format(
+            datetime.now(timezone.utc).astimezone(),
+            r.status_code
+        ))
     except:
-        print("\nFailed to get prometheus endpoint in 30 seconds")
+        print("[{}] Failed to get prometheus endpoint in 30 seconds".format(
+            datetime.now(timezone.utc).astimezone()
+        ))
         pass
 
     if not up:
 
         print(
-            "{} is down. Sending alert to {}".format(
+            "[{}] {} is down. Sending alert to {}.".format(
+                datetime.now(timezone.utc).astimezone(),
                 prometheus,
                 alertmanager
             )
@@ -63,10 +78,9 @@ while True:
         )
 
         if a.status_code == 200:
-            print("alert sent OK")
+            print("[{}] Alert sent OK.".format(datetime.now(timezone.utc).astimezone()))
         else:
-            print("alert failed to send")
-        print(a.json())
+            print("[{}] Alert failed to send.".format(datetime.now(timezone.utc).astimezone()))
 
-    print("waiting for {} seconds..".format(interval))
+    print("[{}] Waiting for {} seconds..".format(datetime.now(timezone.utc).astimezone(), interval))
     time.sleep(interval)
