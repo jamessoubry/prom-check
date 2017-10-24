@@ -60,7 +60,7 @@ def check_prom(prometheus):
     try:
         r = requests.get(
             "http://{}/metrics".format(prometheus),
-            timeout=30
+            timeout=(30, 30)
         )
 
         print("[{}] Status Code: {}".format(
