@@ -1,6 +1,8 @@
 #!/usr/local/bin/python3
 
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 import sys
 import time
 from datetime import datetime, timezone, timedelta
@@ -58,7 +60,20 @@ def check_prom(prometheus):
     """Test Prometheus endpoint."""
 
     try:
-        r = requests.get(
+
+        s = requests.Session()
+
+        retries = Retry(
+            total=5,
+            read=5,
+            connect=5,
+            backoff_factor=1,
+            status_forcelist=( 500, 502, 503, 504 )
+        )
+
+        s.mount('http://', HTTPAdapter(max_retries=retries))
+
+        r = s.get(
             "http://{}/metrics".format(prometheus),
             timeout=(30, 30)
         )
