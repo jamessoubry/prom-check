@@ -7,16 +7,38 @@ import sys
 import time
 from datetime import datetime, timezone, timedelta
 
-interval = 60
+interval = 30
 prometheus = sys.argv[1]
 alertmanager = sys.argv[2]
+
+
+def requests_session(
+    retries=5,
+    backoff_factor=1,
+    status_forcelist=( 500, 502, 503, 504 ),
+):
+
+
+    s = requests.Session()
+
+    retries = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist
+    )
+    adapter = HTTPAdapter(max_retries=retries)
+    s.mount('http://', adapter)
+    s.mount('https://', adapter)
+    return s
 
 
 def send_alert(prometheus, alertmanager):
     """Send alert to alertmanager."""
 
     start_time = datetime.now(timezone.utc).astimezone()
-    end_time = start_time + timedelta(minutes=interval)
+    end_time = start_time + timedelta(seconds=interval)
 
     print("[{}] Sending alert to {}.".format(
             start_time,
@@ -39,21 +61,24 @@ def send_alert(prometheus, alertmanager):
         }
     ]
 
-    a = requests.post(
-        'http://{}/api/v1/alerts'.format(alertmanager),
-        json=body
-    )
+    try:
+        a = requests_session().post(
+            'http://{}/api/v1/alerts'.format(alertmanager),
+            json=body
+        )
 
-    if a.status_code == 200:
-        print("[{}] Alert sent OK.".format(
-            datetime.now(timezone.utc).astimezone()
-        ))
-        return True
-    else:
-        print("[{}] Alert failed to send.".format(
-            datetime.now(timezone.utc).astimezone()
-        ))
-        return False
+        if a.status_code == 200:
+            print("[{}] Alert sent OK.".format(
+                datetime.now(timezone.utc).astimezone()
+            ))
+            return True
+
+    except:
+        pass
+    print("[{}] Alert failed to send.".format(
+        datetime.now(timezone.utc).astimezone()
+    ))
+    return False
 
 
 def check_prom(prometheus):
@@ -61,19 +86,8 @@ def check_prom(prometheus):
 
     try:
 
-        s = requests.Session()
 
-        retries = Retry(
-            total=5,
-            read=5,
-            connect=5,
-            backoff_factor=1,
-            status_forcelist=( 500, 502, 503, 504 )
-        )
-
-        s.mount('http://', HTTPAdapter(max_retries=retries))
-
-        r = s.get(
+        r = requests_session().get(
             "http://{}/metrics".format(prometheus),
             timeout=(30, 30)
         )
