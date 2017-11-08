@@ -38,7 +38,7 @@ def send_alert(prometheus, alertmanager):
     """Send alert to alertmanager."""
 
     start_time = datetime.now(timezone.utc).astimezone()
-    end_time = start_time + timedelta(seconds=interval)
+    end_time = start_time + timedelta(seconds=interval*2)
 
     print("[{}] Sending alert to {}.".format(
             start_time,
